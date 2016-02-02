@@ -19,10 +19,35 @@ typedef struct{
 #define MAX_LINE_LENGTH 255
 #define MAX_SYMBOL_COUNT 255
 
+char* sym_table_labels[500]; //Names of labels
+int sym_table_values[500]; //Value is offset from PC
+int sym_table_size = 0; //Current size of symbol table
+
+int pc_offset = 0;
+
 enum{
   DONE, OK, EMPTY_LINE
 };
 
+//Adds label and value to symbol table
+void addSymbolTable(char* label, int value)
+{
+    sym_table_labels[sym_table_size] = label;
+    sym_table_values[sym_table_size] = value;
+
+    sym_table_size += 1;
+}
+
+//Returns offset from start of program if label is found
+int searchSymbolTable(char* label)
+{
+    for (int i = 0; i < sym_table_size; i++)
+    {
+        if (strcmp(sym_table_labels[i], label) == 0) //Label has been found
+            return sym_table_values[i];
+    }
+    return -1;
+}
 
 FILE* infile =  NULL;
 FILE* outfile = NULL;
