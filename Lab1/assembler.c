@@ -53,9 +53,9 @@ char* codes[numOpCodes] = { "add",
 
 int* cond;
 
-char* sym_table_labels[500]; //Names of labels
-int sym_table_values[500]; //Value is offset from PC
-int sym_table_size = 0; //Current size of symbol table
+char* sym_table_labels[500]; /*Names of labels*/
+int sym_table_values[500]; /*Value is offset from PC*/
+int sym_table_size = 0; /*Current size of symbol table*/
 
 int pc_offset = 0;
 
@@ -63,7 +63,7 @@ enum{
     DONE, OK, EMPTY_LINE
 };
 
-//Adds label and value to symbol table
+/*Adds label and value to symbol table*/
 void addSymbolTable(char* label, int value)
 {
     sym_table_labels[sym_table_size] = label;
@@ -72,12 +72,13 @@ void addSymbolTable(char* label, int value)
     sym_table_size += 1;
 }
 
-//Returns offset from start of program if label is found
+/*Returns offset from start of program if label is found*/
 int searchSymbolTable(char* label)
 {
-    for (int i = 0; i < sym_table_size; i++)
+    int i;
+    for (i = 0; i < sym_table_size; i++)
     {
-    if (strcmp(sym_table_labels[i], label) == 0) //Label has been found
+    if (strcmp(sym_table_labels[i], label) == 0) /*Label has been found*/
         return sym_table_values[i];
     }
     return -1;
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]) {
         lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
         if( lRet != DONE && lRet != EMPTY_LINE )
         {
-    /*...*/
+            /*...*/
         }
     } while( lRet != DONE );
 
@@ -143,44 +144,44 @@ int toNum( char * pStr ){
     orig_pStr = pStr;
     if( *pStr == '#' ){                /* decimal */  
         pStr++;
-    if( *pStr == '-' ){            /* dec is negative */
-        lNeg = 1;
-        pStr++;
-    }
-
-    t_ptr = pStr;
-    t_length = strlen(t_ptr);
-    for(k=0;k < t_length;k++){
-        if (!isdigit(*t_ptr)){
-            printf("Error: invalid decimal operand, %s\n",orig_pStr);
-            exit(4);
+        if( *pStr == '-' ){            /* dec is negative */
+            lNeg = 1;
+            pStr++;
         }
-        t_ptr++;
-    }
-    lNum = atoi(pStr);
-    if (lNeg){lNum = -lNum;}
 
-    return lNum;
+        t_ptr = pStr;
+        t_length = strlen(t_ptr);
+        for(k=0;k < t_length;k++){
+            if (!isdigit(*t_ptr)){
+                printf("Error: invalid decimal operand, %s\n",orig_pStr);
+                exit(4);
+            }
+            t_ptr++;
+        }
+        lNum = atoi(pStr);
+        if (lNeg){lNum = -lNum;}
+
+        return lNum;
     }
     else if( *pStr == 'x' ){    /* hex */
-    pStr++;
-    if( *pStr == '-' ){            /* hex is negative */
-    lNeg = 1;
-    pStr++;
-    }
-    t_ptr = pStr;
-    t_length = strlen(t_ptr);
-    for(k=0;k < t_length;k++){
-        if (!isxdigit(*t_ptr)){
-            printf("Error: invalid hex operand, %s\n",orig_pStr);
-            exit(4);
+        pStr++;
+        if( *pStr == '-' ){            /* hex is negative */
+            lNeg = 1;
+            pStr++;
         }
-        t_ptr++;
-    }
-    lNumLong = strtol(pStr, NULL, 16);    /* convert hex string into integer */
-    lNum = (lNumLong > INT_MAX)? INT_MAX : lNumLong;
-    if( lNeg ){lNum = -lNum;}
-    return lNum;
+        t_ptr = pStr;
+        t_length = strlen(t_ptr);
+        for(k=0;k < t_length;k++){
+            if (!isxdigit(*t_ptr)){
+                printf("Error: invalid hex operand, %s\n",orig_pStr);
+                exit(4);
+            }
+            t_ptr++;
+        }
+        lNumLong = strtol(pStr, NULL, 16);    /* convert hex string into integer */
+        lNum = (lNumLong > INT_MAX)? INT_MAX : lNumLong;
+        if( lNeg ){lNum = -lNum;}
+            return lNum;
     }
     else{
         printf( "Error: invalid operand, %s\n", orig_pStr);
