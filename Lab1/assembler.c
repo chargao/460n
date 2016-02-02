@@ -1,8 +1,8 @@
 /*
-	Name 1: Charlie Gao 
-	Name 2: Tabish Chasmawala 
-	UTEID 1: ccg822
-	UTEID 2: tc22364 
+Name 1: Charlie Gao 
+Name 2: Tabish Chasmawala 
+UTEID 1: ccg822
+UTEID 2: tc22364 
 */
 
 #include <stdio.h>    /* standard input/output library */
@@ -12,15 +12,15 @@
 #include <limits.h>    /* Library for definitions of common variable type characteristics */
 
 typedef struct{
-  int loc; /*address*/
- char* label;
+int loc; /*address*/
+  char* label;
 }SymbolEntry;
 
 #define MAX_LINE_LENGTH 255
 #define MAX_SYMBOL_COUNT 255
 
 enum{
- DONE, OK, EMPTY_LINE
+  DONE, OK, EMPTY_LINE
 };
 
 
@@ -29,7 +29,7 @@ FILE* outfile = NULL;
 
 int main(int argc, char* argv[]) {
 
-  /* open the source file */
+/* open the source file */
   infile = fopen(argv[1], "r");
   outfile = fopen(argv[2], "w");
 
@@ -42,33 +42,33 @@ int main(int argc, char* argv[]) {
     exit(4);
   }
 
-  /* 
-  *
-  *
-  *Do stuff with files 
-  *
-  *
-  */
+/* 
+*
+*
+*Do stuff with files 
+*
+*
+*/
 
-  char lLine[MAX_LINE_LENGTH + 1], *lLabel, *lOpcode, *lArg1, *lArg2, *lArg3, *lArg4;
+char lLine[MAX_LINE_LENGTH + 1], *lLabel, *lOpcode, *lArg1, *lArg2, *lArg3, *lArg4;
 
-  int lRet;
+int lRet;
 
-  FILE * lInfile;
+FILE * lInfile;
 
-  lInfile = fopen( "data.in", "r" );    /* open the input file */
+lInfile = fopen( "data.in", "r" );    /* open the input file */
 
-  do{
-    lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
-    if( lRet != DONE && lRet != EMPTY_LINE )
-    {
-      ...
-    }
-  } while( lRet != DONE );
+do{
+  lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
+  if( lRet != DONE && lRet != EMPTY_LINE )
+  {
+    ...
+  }
+} while( lRet != DONE );
 
 
-  fclose(infile);
-  fclose(outfile);
+fclose(infile);
+fclose(outfile);
 }
 
 
@@ -80,52 +80,52 @@ int toNum( char * pStr ){
   long int lNumLong;
 
   orig_pStr = pStr;
-  if( *pStr == '#' ){                /* decimal */  
-    pStr++;
-    if( *pStr == '-' ){            /* dec is negative */
-      lNeg = 1;
-      pStr++;
-    }
+if( *pStr == '#' ){                /* decimal */  
+  pStr++;
+if( *pStr == '-' ){            /* dec is negative */
+  lNeg = 1;
+  pStr++;
+}
 
-    t_ptr = pStr;
-    t_length = strlen(t_ptr);
-    for(k=0;k < t_length;k++){
-      if (!isdigit(*t_ptr)){
-        printf("Error: invalid decimal operand, %s\n",orig_pStr);
-        exit(4);
-      }
-      t_ptr++;
-    }
-    lNum = atoi(pStr);
-    if (lNeg){lNum = -lNum;}
-
-    return lNum;
+t_ptr = pStr;
+t_length = strlen(t_ptr);
+for(k=0;k < t_length;k++){
+  if (!isdigit(*t_ptr)){
+    printf("Error: invalid decimal operand, %s\n",orig_pStr);
+    exit(4);
   }
-  else if( *pStr == 'x' ){    /* hex */
-    pStr++;
-    if( *pStr == '-' ){            /* hex is negative */
-      lNeg = 1;
-      pStr++;
-    }
-    t_ptr = pStr;
-    t_length = strlen(t_ptr);
-    for(k=0;k < t_length;k++){
-      if (!isxdigit(*t_ptr)){
-        printf("Error: invalid hex operand, %s\n",orig_pStr);
-        exit(4);
-      }
-      t_ptr++;
-    }
+  t_ptr++;
+}
+lNum = atoi(pStr);
+if (lNeg){lNum = -lNum;}
+
+return lNum;
+}
+else if( *pStr == 'x' ){    /* hex */
+pStr++;
+if( *pStr == '-' ){            /* hex is negative */
+lNeg = 1;
+pStr++;
+}
+t_ptr = pStr;
+t_length = strlen(t_ptr);
+for(k=0;k < t_length;k++){
+  if (!isxdigit(*t_ptr)){
+    printf("Error: invalid hex operand, %s\n",orig_pStr);
+    exit(4);
+  }
+  t_ptr++;
+}
 lNumLong = strtol(pStr, NULL, 16);    /* convert hex string into integer */
-    lNum = (lNumLong > INT_MAX)? INT_MAX : lNumLong;
-    if( lNeg ){lNum = -lNum;}
-    return lNum;
-  }
-  else{
-    printf( "Error: invalid operand, %s\n", orig_pStr);
-    exit(4); 
-  /*This has been changed from error code 3 to error code 4, see clarification 12 */
-  }
+lNum = (lNumLong > INT_MAX)? INT_MAX : lNumLong;
+if( lNeg ){lNum = -lNum;}
+return lNum;
+}
+else{
+  printf( "Error: invalid operand, %s\n", orig_pStr);
+  exit(4); 
+/*This has been changed from error code 3 to error code 4, see clarification 12 */
+}
 }
 
 int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char
