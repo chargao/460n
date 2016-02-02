@@ -18,6 +18,40 @@ typedef struct{
 
 #define MAX_LINE_LENGTH 255
 #define MAX_SYMBOL_COUNT 255
+#define numOpCodes 28
+
+/*Array of valid opcodes*/
+char* codes[numOpCodes] = { "ADD",
+                            "AND",
+                            "BR",
+                            "BRP",
+                            "BRZ",
+                            "BRZP",
+                            "BRN",
+                            "BRNP",
+                            "BRNZ",
+                            "BRNZP",
+                            "HALT",
+                            "JMP",
+                            "JSR",
+                            "JSRR",
+                            "LDB",
+                            "LDW",
+                            "LEA",
+                            "NOP",
+                            "NOT",
+                            "RET",
+                            "LSHF",
+                            "RSHFL",
+                            "RSHFA",
+                            "RTI",
+                            "STB",
+                            "STW",
+                            "TRAP",
+                            "XOR"
+};
+
+int* cond;
 
 char* sym_table_labels[500]; //Names of labels
 int sym_table_values[500]; //Value is offset from PC
@@ -53,6 +87,8 @@ FILE* infile =  NULL;
 FILE* outfile = NULL;
 
 int main(int argc, char* argv[]) {
+    /*some initializations*/
+    cond=malloc(sizeof(int));
 
 /* open the source file */
     infile = fopen(argv[1], "r");
@@ -201,46 +237,13 @@ int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char
 
     return( OK );
 }
-
-
 /* Note: MAX_LINE_LENGTH, OK, EMPTY_LINE, and DONE are defined values */
 
-/*Array of valid opcodes*/
-#define numOpCodes 28
-char* codes[numOpCodes] = { "ADD",
-                            "AND",
-                            "BR",
-                            "BRP",
-                            "BRZ",
-                            "BRZP",
-                            "BRN",
-                            "BRNP",
-                            "BRNZ",
-                            "BRNZP",
-                            "HALT",
-                            "JMP",
-                            "JSR",
-                            "JSRR",
-                            "LDB",
-                            "LDW",
-                            "LEA",
-                            "NOP",
-                            "NOT",
-                            "RET",
-                            "LSHF",
-                            "RSHFL",
-                            "RSHFA",
-                            "RTI",
-                            "STB",
-                            "STW",
-                            "TRAP",
-                            "XOR"
-};
 
 /*Returns 0 if not an opcode; 1 otherwise */
 int isOpcode(char * code){
     int x;
-    for(x=0;x<numCodes;x++){
+    for(x=0;x<numOpCodes;x++){
         if(strcmp(code, codes[x])==0){return 1;} /*YES OPCODE*/
     }
     return -1; /*NOT OPCODE*/
