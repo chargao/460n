@@ -21,34 +21,34 @@ typedef struct{
 #define numOpCodes 28
 
 /*Array of valid opcodes*/
-char* codes[numOpCodes] = { "ADD",
-                            "AND",
-                            "BR",
-                            "BRP",
-                            "BRZ",
-                            "BRZP",
-                            "BRN",
-                            "BRNP",
-                            "BRNZ",
-                            "BRNZP",
-                            "HALT",
-                            "JMP",
-                            "JSR",
-                            "JSRR",
-                            "LDB",
-                            "LDW",
-                            "LEA",
-                            "NOP",
-                            "NOT",
-                            "RET",
-                            "LSHF",
-                            "RSHFL",
-                            "RSHFA",
-                            "RTI",
-                            "STB",
-                            "STW",
-                            "TRAP",
-                            "XOR"
+char* codes[numOpCodes] = { "add",
+                            "and",
+                            "br",
+                            "brp",
+                            "brz",
+                            "brzp",
+                            "brn",
+                            "brnp",
+                            "brnz",
+                            "brnzp",
+                            "halt",
+                            "jmp",
+                            "jsr",
+                            "jsrr",
+                            "ldb",
+                            "ldw",
+                            "lea",
+                            "nop",
+                            "not",
+                            "ret",
+                            "lshf",
+                            "rshfl",
+                            "rshfa",
+                            "rti",
+                            "stb",
+                            "stw",
+                            "trap",
+                            "xor"
 };
 
 int* cond;
@@ -260,37 +260,37 @@ int isOpcode(char * code){
 int parseOpcodes(char* op, int* nzp){
     *cond=0;
 
-    if     (strcmp(op,"ADD")==0)  {return 1;}
-    else if(strcmp(op,"AND")==0)  {return 5;}
-    else if(strcmp(op,"NOP")==0)  {*cond=0; return 0;} /*br variants*/
-    else if(strcmp(op,"BRP")==0)  {*cond=1; return 0;}
-    else if(strcmp(op,"BRZ")==0)  {*cond=2; return 0;}
-    else if(strcmp(op,"BRZP")==0) {*cond=3; return 0;}
-    else if(strcmp(op,"BRN")==0)  {*cond=4; return 0;}
-    else if(strcmp(op,"BRNP")==0) {*cond=5; return 0;}
-    else if(strcmp(op,"BRNZ")==0) {*cond=6; return 0;}
-    else if(strcmp(op,"BR")==0)   {*cond=7; return 0;}
-    else if(strcmp(op,"BRNZP")==0){*cond=7; return 0;}
-    else if(strcmp(op,"JMP")==0)  {*cond=0; return 12;} /*Cond. code is failsafe; though JMP & RET have same opcodes,*/
-    else if(strcmp(op,"RET")==0)  {*cond=1; return 12;} /*they have no separate cond. codes; RET = JMP from R7*/
-    else if(strcmp(op,"JSR")==0)  {*cond=1; return 4;}
-    else if(strcmp(op,"JSRR")==0) {*cond=0; return 4;}
-    else if(strcmp(op,"LDB")==0)  {return 2;}
-    else if(strcmp(op,"LDW")==0)  {return 6;}
-    else if(strcmp(op,"LEA")==0)  {return 14;}
-    else if(strcmp(op,"RTI")==0)  {return 8;}
-    else if(strcmp(op,"LSHF")==0) {*cond=0; return 13;} /*left shift*/
-    else if(strcmp(op,"RSHFL")==0){*cond=1; return 13;} /*right logical shift*/
-    else if(strcmp(op,"RSHFA")==0){*cond=3; return 13;} /*right arithmetic shift*/
-    else if(strcmp(op,"STB")==0)  {return 3;}
-    else if(strcmp(op,"STW")==0)  {return 7;}
-    else if(strcmp(op,"TRAP")==0) {*cond=0; return 15;} /*various TRAP vects*/
-    else if(strcmp(op,"HALT")==0) {*cond=37;return 15;} /*aka x25*/
-    else if(strcmp(op,"XOR")==0)  {return 9;} /*!!!There is an XOR with cond. code 1, of which NOT is a special case,*/
-    else if(strcmp(op,"NOT")==0)  {*cond=1;return 9;} /*but there is no easy way to identify them with this function alone*/
+    if     (strcmp(op,"add")==0)  {return 1;}
+    else if(strcmp(op,"and")==0)  {return 5;}
+    else if(strcmp(op,"nop")==0)  {*cond=0; return 0;} /*br variants*/
+    else if(strcmp(op,"brp")==0)  {*cond=1; return 0;}
+    else if(strcmp(op,"brz")==0)  {*cond=2; return 0;}
+    else if(strcmp(op,"brzp")==0) {*cond=3; return 0;}
+    else if(strcmp(op,"brn")==0)  {*cond=4; return 0;}
+    else if(strcmp(op,"brnp")==0) {*cond=5; return 0;}
+    else if(strcmp(op,"brnz")==0) {*cond=6; return 0;}
+    else if(strcmp(op,"br")==0)   {*cond=7; return 0;}
+    else if(strcmp(op,"brnzp")==0){*cond=7; return 0;}
+    else if(strcmp(op,"jmp")==0)  {*cond=0; return 12;} /*cond. code is failsafe; though jmp & ret have same opcodes,*/
+    else if(strcmp(op,"ret")==0)  {*cond=1; return 12;} /*they have no separate cond. codes; ret = jmp from r7*/
+    else if(strcmp(op,"jsr")==0)  {*cond=1; return 4;}
+    else if(strcmp(op,"jsrr")==0) {*cond=0; return 4;}
+    else if(strcmp(op,"ldb")==0)  {return 2;}
+    else if(strcmp(op,"ldw")==0)  {return 6;}
+    else if(strcmp(op,"lea")==0)  {return 14;}
+    else if(strcmp(op,"rti")==0)  {return 8;}
+    else if(strcmp(op,"lshf")==0) {*cond=0; return 13;} /*left shift*/
+    else if(strcmp(op,"rshfl")==0){*cond=1; return 13;} /*right logical shift*/
+    else if(strcmp(op,"rshfa")==0){*cond=3; return 13;} /*right arithmetic shift*/
+    else if(strcmp(op,"stb")==0)  {return 3;}
+    else if(strcmp(op,"stw")==0)  {return 7;}
+    else if(strcmp(op,"trap")==0) {*cond=0; return 15;} /*various trap vects*/
+    else if(strcmp(op,"halt")==0) {*cond=37;return 15;} /*aka x25*/
+    else if(strcmp(op,"xor")==0)  {return 9;} /*!!!there is an xor with cond. code 1, of which not is a special case,*/
+    else if(strcmp(op,"not")==0)  {*cond=1;return 9;} /*but there is no easy way to identify them with this function alone*/
     /*BELOW ARE PSEUDO-OPS*/
-    else if(strcmp(op,".ORIG")==0) {return 16;}
-    else if(strcmp(op,".FILL")==0) {return 17;}
-    else if(strcmp(op,".END")==0)  {return 18;}
+    else if(strcmp(op,".orig")==0) {return 16;}
+    else if(strcmp(op,".fill")==0) {return 17;}
+    else if(strcmp(op,".end")==0)  {return 18;}
     else {return -1;} /*invalid opcode*/
 }
