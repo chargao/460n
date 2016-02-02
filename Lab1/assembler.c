@@ -194,6 +194,27 @@ int isOpcode(char * code){
   return -1; /*NOT OPCODE*/
 }
 
+/* parsing opcodes
+ * returns the integer value of the opcode binary value (e.g. ADD returns 1)
+ * Special Cases: 
+ * .FILL=16, .END=17,invalid=18
+ * NZP will be set separately, passed by pointer
+ * 
+ */
+int parseOpcodes(char* op, int* nzp){
+  *nzp=0;
 
-
-
+  if     (strcmp(op,"ADD")==0)  {return 1;}
+  else if(strcmp(op,"AND")==0)  {return 5;}
+  else if(strcmp(op,"NOP")==0)  {*nzp=0;return 0;}
+  else if(strcmp(op,"BRP")==0)  {*nzp=1;return 0;}
+  else if(strcmp(op,"BRZ")==0)  {*nzp=2;return 0;}
+  else if(strcmp(op,"BRZP")==0) {*nzp=3;return 0;}
+  else if(strcmp(op,"BRN")==0)  {*nzp=4;return 0;}
+  else if(strcmp(op,"BRNP")==0) {*nzp=5;return 0;}
+  else if(strcmp(op,"BRNZ")==0) {*nzp=6;return 0;}
+  else if(strcmp(op,"BR")==0)   {*nzp=7;return 0;}
+  else if(strcmp(op,"BRNZP")==0){*nzp=7;return 0;}
+  /*else if(strcmp(op,"HALT")==0) {return 15;}*/
+  /*etc, currently working*/
+}
