@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
     lRet = readAndParse( lInfile, lLine, &lLabel, &lOpcode, &lArg1, &lArg2, &lArg3, &lArg4 );
     if( lRet != DONE && lRet != EMPTY_LINE )
     {
-      ...
+      /*...*/
     }
   } while( lRet != DONE );
 
@@ -177,4 +177,23 @@ int readAndParse( FILE * pInfile, char * pLine, char ** pLabel, char
   return( OK );
 }
 
+
 /* Note: MAX_LINE_LENGTH, OK, EMPTY_LINE, and DONE are defined values */
+
+/*Array of valid opcodes*/
+#define numOpCodes 31
+char* codes[numOpCodes] = {"ADD","AND","BR","BRN","BRZ","BRP","BRNZ","BRNP","BRZP","BRNZP","HALT","JMP","JSR","JSRR","LDB","LDW","LEA","NOP","NOT","RET","LSHF","RSHFL","RSHFA","RTI","STB","STW","TRAP","XOR",".ORIG",".FILL",".END"};
+
+/*Returns 0 if not an opcode; 1 otherwise */
+int isOpcode(char * code){
+  int x;
+  for(x=0;x<numCodes;x++){
+    if(strcmp(code, codes[x])==0)
+    return 1; /*YES OPCODE*/
+  }
+  return -1; /*NOT OPCODE*/
+}
+
+
+
+
