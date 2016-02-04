@@ -1,10 +1,10 @@
 /*
     REFER TO THE SUBMISSION INSTRUCTION FOR DETAILS
 
-    Name 1: Full name of the first partner 
-    Name 2: Full name of the second partner
-    UTEID 1: UT EID of the first partner
-    UTEID 2: UT EID of the second partner
+    Name 1: Charlie Gao 
+    Name 2: Chase Riggins
+    UTEID 1: ccg822
+    UTEID 2: cmr2842
 */
 
 /***************************************************************/
@@ -415,7 +415,28 @@ void process_instruction(){
    *       -Execute
    *       -Update NEXT_LATCHES
    */     
+  int localProgramCounter = CURRENT_LATCHES.PC;
+  int instruction = (MEMORY[localProgramCounter][1]<<8)+MEMORY[localProgramCounter][0];
+  int dr,sr1,sr2; /*if uses immediate value, recycle sr2*/
+  switch (instruction & 0xF000){ /*opcode*/
+    case 0x0001:
+      if((instruction & 0x0020)==0){ /*two sr*/
+        dr = (instruction & 0x0E00);
+        sr1 = (instruction & 0x01C0);
+        sr2 = (instruction & 0x0007);
+        /*execute*/
+        CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2];
+        if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;}
+        else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
+        else{CURRENT_LATCHES.P = 1;}
+      }
+      else{ /*one sr*/
 
+      }
+      break;
+    default:
+      break;
+  }
 }
 
 
