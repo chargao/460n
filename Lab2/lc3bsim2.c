@@ -419,7 +419,7 @@ void process_instruction(){
   int instruction = (MEMORY[localProgramCounter][1]<<8)+MEMORY[localProgramCounter][0];
   int dr,sr1,sr2; /*if uses immediate value, recycle sr2*/
   switch (instruction & 0xF000){ /*opcode*/
-    case 0x1000: /*add*/
+    case 0x1000: /*ADD*/
       if((instruction & 0x0020)==0){ /*two sr*/
         dr = (instruction & 0x0E00); /*instruction[11:9]*/
         sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
@@ -433,7 +433,7 @@ void process_instruction(){
       }
       break;
     
-    case 0x9000: /*not*/
+    case 0x9000: /*NOT*/
       dr = (instruction & 0x0E00); /*instruction[11:9]*/
       sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
       /*execute*/
@@ -441,11 +441,38 @@ void process_instruction(){
       setcc();
       break;
 
-    case 0xC000: /*jmp and ret*/
+    case 0xC000: /*JMP and RET*/
       sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
       /*execute*/
       CURRENT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
       break;
+
+    case 0xD000: /*LSHF, RSHFL, RSHFA*/
+      dr = (instruction & 0x0E00); /*instruction[11:9]*/
+      sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+      sr2 = (instruction & 0x000F); /*instruction[3:0], repurposed as amt(4)*/
+      /*finish decode & execute*/
+      switch(instruction & 0x0030){
+        case 0x0000: /*LSHF*/ 
+          CURRENT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]<<sr2);
+          break;
+        case 0x0010: /*RSHFL*/
+          CURRENT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]>>sr2); /*this may or may not work as expected*/
+
+          break;
+        case 0x0030: /*RSHFA*/
+          int sign=(CURRENT_LATCHES.REGS[sr1] & 0x8000);
+          int shftnum;
+          for (shftnum=0;shftnum<sr2;shftnum++){
+            CURRENT_LATCHES.REGS[dr]=Low16bits(CURRENT_LATCHES.REGS[sr1]>>1);
+            CURRENT_LATCHES.REGS[dr]&=sign;
+          }
+          break;
+      }
+      setcc();
+      break;
+
+    case 0x3000: /*STB*/
 
     default: /*cannot decode, throw invalid opcode*/
       break;
