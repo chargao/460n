@@ -421,24 +421,39 @@ void process_instruction(){
   switch (instruction & 0xF000){ /*opcode*/
     case 0x1000: /*add*/
       if((instruction & 0x0020)==0){ /*two sr*/
-        dr = (instruction & 0x0E00);
-        sr1 = (instruction & 0x01C0);
-        sr2 = (instruction & 0x0007);
+        dr = (instruction & 0x0E00); /*instruction[11:9]*/
+        sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+        sr2 = (instruction & 0x0007); /*instruction[2:0]*/
         /*execute*/
         CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2];
-        if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;}
-        else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
-        else{CURRENT_LATCHES.P = 1;}
+        setcc();
       }
       else{ /*one sr*/
 
       }
       break;
+    
     case 0x9000: /*not*/
+      dr = (instruction & 0x0E00); /*instruction[11:9]*/
+      sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+      /*execute*/
+      CURRENT_LATCHES.REGS[dr] = ~(CURRENT_LATCHES.REGS[sr1]);
+      setcc();
+      break;
 
-    default:
+    case 0xC000: /*jmp and ret*/
+      sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+      /*execute*/
+      CURRENT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
+      break;
+
+    default: /*cannot decode, throw invalid opcode*/
       break;
   }
 }
 
-
+void setcc(){
+  if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;} /*setcc*/
+  else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
+  else{CURRENT_LATCHES.P = 1;}
+}
