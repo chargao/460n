@@ -419,7 +419,7 @@ void process_instruction(){
   int instruction = (MEMORY[localProgramCounter][1]<<8)+MEMORY[localProgramCounter][0];
   int dr,sr1,sr2; /*if uses immediate value, recycle sr2*/
   switch (instruction & 0xF000){ /*opcode*/
-    case 0x0001:
+    case 0x1000: /*add*/
       if((instruction & 0x0020)==0){ /*two sr*/
         dr = (instruction & 0x0E00);
         sr1 = (instruction & 0x01C0);
@@ -434,6 +434,8 @@ void process_instruction(){
 
       }
       break;
+    case 0x9000: /*not*/
+
     default:
       break;
   }
