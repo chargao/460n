@@ -411,21 +411,66 @@ void process_instruction(){
   
   int loc,data; /*used for any memory-related instructions*/
   int sign, shftnum; /*used specifically for RSHFA*/
+  int n, z, p; /* local n z p bits */
+  int offset9; /* PCoffset9 */
+  int loc; /* memory location */
   switch (instruction & 0xF000){ /*decode opcode*/
-    case 0x1000: /*ADD*/
+      case 0x1000: /*ADD*/
       if((instruction & 0x0020)==0){ /*two sr*/
         dr = (instruction & 0x0E00); /*instruction[11:9]*/
+        dr = dr >> 9;
         sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
-        sr2 = (instruction & 0x0007); /*instruction[2:0]*/
+        sr1 = sr1 >> 6;
+        sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
         /*execute*/
         CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1]+CURRENT_LATCHES.REGS[sr2];
         setcc();
       }
-      else{ /*one sr*/
-
+      else { /*one sr*/
+        dr = (instruction & 0x0E00); /*instruction[11:9]*/
+        dr = dr >> 9;
+        sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+        sr1 = sr1 >> 6;
+        sr2 = (instruction & 0x001F); /* imm5[4:0] */
+        /*execute*/
+        CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] + sr2; /* sr2 = imm5 */
+        setcc();                                                                                                          /* DONT FORGET ABOUT PC */
       }
-      break;
-    
+	  break;
+    case 0x5000: /* AND */
+      if((instruction & 0x0020) == 0) {  /* two sr */
+        dr = (instruction & 0x0E00); /*instruction[11:9]*/
+        dr = dr >> 9;
+        sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+        sr1 = sr1 >> 9;
+        sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
+        /* execute */
+        CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & CURRENT_LATCHES.REGS[sr2];
+        setcc();
+      }
+      else { /* one sr1 */
+        dr = (instruction & 0x0E00); /*instruction[11:9]*/
+        dr = dr >> 9;
+        sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
+        sr1 = sr1 >> 9;
+        sr2 = instruction & 0x001F; /* imm5[4:0] */
+        /*execute*/
+        CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & sr2; /* sr2 is actually imm5 */
+        setcc();
+      }
+	  break;
+    case 0x0000:
+      n = instruction & 0x0800;
+      z = instruction & 0x0400;
+      p = instruction & 0x0200;
+      if((n && CURRENT_LATCHES.N) || (z && CURRENT_LATCHES.Z) || (p && CURRENT_LATCHES.P)){
+        offset9 = instruction & 0x01FF;
+        if(instruction & 0x0100)
+        {
+          /* PCoffset9 is negative, must sign extend */
+          offset9 = offset9 << 1; /* since neg, 0x0200 must == 1 */
+		}
+
     case 0x9000: /*NOT*/
       dr  = (instruction & 0x0E00)>>9; /*instruction[11:9]*/
       sr1 = (instruction & 0x01C0)>>6; /*instruction[8:6]*/
