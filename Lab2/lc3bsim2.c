@@ -442,6 +442,7 @@ void process_instruction() {
         setcc();                                                                                                          /* DONT FORGET ABOUT PC */
       }
           break;
+    
     case 0x5000: /* AND */
       if ((instruction & 0x0020) == 0) {  /* two sr */
         dr = (instruction & 0x0E00); /*instruction[11:9]*/
@@ -464,6 +465,7 @@ void process_instruction() {
         setcc();
       }
           break;
+    
     case 0x0000: /* BRANCH */
         n = instruction & 0x0800;
           z = instruction & 0x0400;
@@ -484,6 +486,7 @@ void process_instruction() {
             }
           }
           break;
+    
     case 0x4000: /* JSR and JSRR */
       CURRENT_LATCHES.REGS[7] = CURRENT_LATCHES.PC + 2;
       if(instruction & 0x0800) { /*JSR case */
@@ -506,6 +509,7 @@ void process_instruction() {
 
       }
           break;
+    
     case 0x2000: /* LDB */
       if(instruction & 0x0020) { /* base offset negative */
         sr1 = instruction & 0x01C0;
@@ -532,12 +536,13 @@ void process_instruction() {
         setcc();
       }
           break;
+    
     case 0x6000: /* LDW */
       if(instruction & 0x0020) { /* base offset negative */
         sr1 = instruction & 0x01C0;
         sr1 >> 6;
         offset6 = instruction & 0x003F;
-        offset6 = offset6 | 0xFFFFFFC0;
+        offset6 = offset6 | 0xFFFFFFC0; /*negative sign extend*/
         offset6 << 1;
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
         dr = 0x0E00;
@@ -560,6 +565,7 @@ void process_instruction() {
         setcc();
       }
       break;
+    
     case 0xE000:
       dr = instruction & 0x0E00;
       dr >> 9;
@@ -574,6 +580,102 @@ void process_instruction() {
         CURRENT_LATCHES.REGS[dr] = CURRENT_LATCHES.PC + 2 + offset9;
       }
       break;
+    
+    case 0xC000: /*JMP and RET*/
+      sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
+      sr1/=2; /*note memory is word addressable*/
+      /*execute*/
+      CURRENT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
+      break;
+    
+    case 0xD000: /*LSHF, RSHFL, RSHFA*/
+      dr = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/
+      sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
+      sr2 = (instruction & 0x000F);    /*instruction[3:0], repurposed as amt(4)*/
+      /*finish decode & execute*/
+      switch (instruction & 0x0030) {
+        case 0x0000: /*LSHF*/
+          CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] << sr2);
+          break;
+        case 0x0010: /*RSHFL*/
+          CURRENT_LATCHES.REGS[dr] = Low16bits(
+          CURRENT_LATCHES.REGS[sr1] >> sr2); /*this may or may not work as expected*/
+          break;
+        case 0x0030: /*RSHFA*/
+          sign = (CURRENT_LATCHES.REGS[sr1] & 0x8000);
+          for (shftnum = 0; shftnum < sr2; shftnum++) {
+            CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] >> 1);
+            CURRENT_LATCHES.REGS[dr] &= sign;
+          }
+          break;
+      }
+      setcc();
+      break;
+
+    case 0x3000: /*STB*/
+      sr1 = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/ /*note this is SR*/
+      dr = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/  /*note this is baseR*/
+      sr2 = (instruction & 0x003F);    /*instruction[5:0]*/  /*note this is offset(6)*/
+      if(instruction & 0x0020) { sr2 = sr2 | 0xFFFFFFC0; }/* base offset negative,  negative sign extend*/
+
+      /*execute*/
+      data = (CURRENT_LATCHES.REGS[sr1] & 0x00FF);
+      loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
+      MEMORY[loc][0] = data & 0xFF; /*lower byte*/
+      break;
+
+    case 0x7000: /*STw*/ /*We are making the assumption that the offset is properly aligned*/
+      sr1 = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/ /*note this is SR*/
+      dr = (instruction & 0x01C0) >> 6;  /*instruction[8:6]*/  /*note this is baseR*/
+      sr2 = (instruction & 0x003F);      /*instruction[5:0]*/  /*note this is offset(6)*/
+      if(instruction & 0x0020) { sr2 = sr2 | 0xFFFFFFC0; }/* base offset negative,  negative sign extend*/
+      /*execute*/
+      data = Low16bits(CURRENT_LATCHES.REGS[sr1]);
+      loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
+      MEMORY[loc][0] = data & 0x00FF; /*lower byte*/
+      MEMORY[loc][1] = (data & 0xFF00) >> 8; /*upper byte*/
+      break;
+
+    case 0xF000: /*TRAP*/
+      sr2 = (instruction & 0x00FF); /*note this is the trap vector*/
+      /*execute*/
+      CURRENT_LATCHES.REGS[7] = CURRENT_LATCHES.PC;
+      loc = Low16bits(sr2) << 1;
+      CURRENT_LATCHES.PC = (MEMORY[loc][1] << 8) + MEMORY[loc][0];
+      break;
+
+    case 0x9000: /*XOR*/
+      if ((instruction & 0x0020) == 0) { /*two SR*/
+        dr = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/
+        sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
+        sr2 = (instruction & 0x0007);    /*instruction[2:0]*/
+        /*execute*/
+        CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] ^ CURRENT_LATCHES.REGS[sr2]);
+        setcc();
+      }
+      else { /*one SR*/
+        dr = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/
+        sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
+        sr2 = (instruction & 0x001F);    /*imm5*/
+        /*execute*/
+        CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] ^ sr2);
+        setcc();
+      }
+    break;
+
+    default: /*cannot decode opcode, shold throw invalid opcode*/
+      /*we are making the assumption that all opcodes are valid*/
+      break;
+  }
+}
+
+void setcc(){
+  if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;} /*setcc*/
+  else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
+  else{CURRENT_LATCHES.P = 1;}
+}
+
+
 
 
 
@@ -587,93 +689,3 @@ void process_instruction() {
       setcc();
       break;
 */
-            case 0xC000: /*JMP and RET*/
-              sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
-            /*execute*/
-            CURRENT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
-            break;
-
-            case 0xD000: /*LSHF, RSHFL, RSHFA*/
-              dr = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/
-            sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
-            sr2 = (instruction & 0x000F);    /*instruction[3:0], repurposed as amt(4)*/
-            /*finish decode & execute*/
-            switch (instruction & 0x0030) {
-              case 0x0000: /*LSHF*/
-                CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] << sr2);
-                    break;
-              case 0x0010: /*RSHFL*/
-                CURRENT_LATCHES.REGS[dr] = Low16bits(
-                        CURRENT_LATCHES.REGS[sr1] >> sr2); /*this may or may not work as expected*/
-
-                    break;
-              case 0x0030: /*RSHFA*/
-                sign = (CURRENT_LATCHES.REGS[sr1] & 0x8000);
-                    for (shftnum = 0; shftnum < sr2; shftnum++) {
-                      CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] >> 1);
-                      CURRENT_LATCHES.REGS[dr] &= sign;
-                    }
-                    break;
-            }
-            setcc();
-            break;
-
-            case 0x3000: /*STB*/
-              sr1 = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/ /*note this is SR*/
-            dr = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/  /*note this is baseR*/
-            sr2 = (instruction & 0x003F);    /*instruction[5:0]*/  /*note this is offset(6)*/
-            /*execute*/
-            data = (CURRENT_LATCHES.REGS[sr1] & 0x00FF);
-            loc = (CURRENT_LATCHES.REGS[dr] + sr2); /*sExt(offset) + BaseR*/
-            MEMORY[loc][0] = data & 0xFF; /*lower byte*/
-            break;
-
-            case 0x7000: /*STw*/ /*We are making the assumption that the offset is properly aligned*/
-              sr1 = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/ /*note this is SR*/
-            dr = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/  /*note this is baseR*/
-            sr2 = (instruction & 0x003F);    /*instruction[5:0]*/  /*note this is offset(6)*/
-            /*execute*/
-            data = Low16bits(CURRENT_LATCHES.REGS[sr1]);
-            loc = (CURRENT_LATCHES.REGS[dr] + sr2); /*sExt(offset) + BaseR*/
-            MEMORY[loc][0] = data & 0x00FF; /*lower byte*/
-            MEMORY[loc][1] = (data & 0xFF00) >> 8; /*upper byte*/
-            break;
-
-            case 0xF000: /*TRAP*/
-              sr2 = (instruction & 0x00FF); /*note this is the trap vector*/
-            /*execute*/
-            CURRENT_LATCHES.REGS[7] = CURRENT_LATCHES.PC;
-            loc = Low16bits(sr2) << 1;
-            CURRENT_LATCHES.PC = (MEMORY[loc][1] << 8) + MEMORY[loc][0];
-            break;
-
-            case 0x9000: /*XOR*/
-              if ((instruction & 0x0020) == 0) { /*two SR*/
-                dr = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/
-                sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
-                sr2 = (instruction & 0x0007);    /*instruction[2:0]*/
-                /*execute*/
-                CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] ^ CURRENT_LATCHES.REGS[sr2]);
-                setcc();
-              }
-              else { /*one SR*/
-                dr = (instruction & 0x0E00) >> 9; /*instruction[11:9]*/
-                sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
-                sr2 = (instruction & 0x0007);    /*imm5*/
-                /*execute*/
-                CURRENT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] ^ sr2);
-                setcc();
-              }
-            break;
-
-            default: /*cannot decode opcode, shold throw invalid opcode*/
-              /*we are making the assumption that all opcodes are valid*/
-              break;
-          }
-  }
-
-void setcc(){
-  if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;} /*setcc*/
-  else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
-  else{CURRENT_LATCHES.P = 1;}
-}
