@@ -408,7 +408,8 @@ int main(int argc, char *argv[]) {
 int dr, sr1, sr2; /*if an instruction uses an immediate value, reuse sr2 as immediate*/
 void setcc(void);
 void process_instruction() {
-  int instruction = (MEMORY[CURRENT_LATCHES.PC][1] << 8) + MEMORY[CURRENT_LATCHES.PC][0];
+  int currentPc = CURRENT_LATCHES.PC/2;
+  int instruction = ((MEMORY[currentPc][1] << 8) + MEMORY[currentPc][0]);
 
   int loc, data; /*used for any memory-related instructions*/
   int sign, shftnum; /*used specifically for RSHFA*/
@@ -468,11 +469,7 @@ void process_instruction() {
           z = instruction & 0x0400;
           p = instruction & 0x0200;
           /*BUG IF BRANCH IS FIRST INSTRUCTION */
-          /* fake values begin */
-          CURRENT_LATCHES.N = 1;
-          instruction = 0x0F38;
-          n = 1;
-          /* fake values end */
+
 
           if ((n && CURRENT_LATCHES.N) || (z && CURRENT_LATCHES.Z) || (p && CURRENT_LATCHES.P)) {
             offset9 = instruction & 0x01FF;
@@ -518,6 +515,7 @@ void process_instruction() {
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
         dr = 0x0E00;
         dr = dr >> 9;
+        memLoc = memLoc / 2;
         CURRENT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
         setcc();
       }
@@ -528,6 +526,7 @@ void process_instruction() {
         memLoc = CURRENT_LATCHES.REGS[sr1] + offset6;
         dr = instruction & 0x0E00;
         dr = dr >> 9;
+        memLoc = memLoc /2;
         CURRENT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
         /* need to account for sign extension */
         setcc();
@@ -543,6 +542,7 @@ void process_instruction() {
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
         dr = 0x0E00;
         dr = dr >> 9;
+        memLoc = memLoc/2;
         CURRENT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
         setcc();
       }
@@ -554,6 +554,7 @@ void process_instruction() {
         memLoc = CURRENT_LATCHES.REGS[sr1] + offset6;
         dr = instruction & 0x0E00;
         dr = dr >> 9;
+        memLoc = memLoc/2;
         CURRENT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
         /* need to account for sign extension */
         setcc();
@@ -670,7 +671,7 @@ void process_instruction() {
               break;
           }
   }
-}
+
 void setcc(){
   if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;} /*setcc*/
   else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
