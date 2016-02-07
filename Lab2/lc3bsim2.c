@@ -481,7 +481,7 @@ void process_instruction() {
               NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
             }
             else { /* PCoffset9 is positive */
-              offset9 << 1;
+              offset9 = offset9 << 1;
               NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
             }
           }
@@ -490,8 +490,9 @@ void process_instruction() {
     case 0x4000: /* JSR and JSRR */
       NEXT_LATCHES.REGS[7] = CURRENT_LATCHES.PC + 2;
       if(instruction & 0x0800) { /*JSR case */
+        offset11 = instruction & 0x7FF;
         if(instruction & 0x0400) {/* negative PCoffset11 */
-          offset11 = instruction & 0x7FF;
+
           offset11 = offset11 | 0xFFFFF000;
           offset11 = offset11 << 1;
           NEXT_LATCHES.PC =CURRENT_LATCHES.PC + 2 + offset11;
@@ -513,25 +514,42 @@ void process_instruction() {
     case 0x2000: /* LDB */
       if(instruction & 0x0020) { /* base offset negative */
         sr1 = instruction & 0x01C0;
-        sr1 >> 6;
+        sr1 = sr1 >> 6;
         offset6 = instruction & 0x003F;
         offset6 = offset6 | 0xFFFFFFC0;
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
-        dr = 0x0E00;
+        dr = instruction & 0x0E00;
         dr = dr >> 9;
-        memLoc = memLoc / 2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        if((memLoc & 1) == 0)
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        }
+        else
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][1]; /* come back and double check this */
+        }
         setcc();
       }
       else { /* base offset positve */
         sr1 = instruction & 0x01C0; /* BaseR */
-        sr1 >> 6;
-        offset6 = offset6 & 0x003F; /*boffset6*/
+        sr1 = sr1 >> 6;
+        offset6 = instruction & 0x003F; /*boffset6*/
         memLoc = CURRENT_LATCHES.REGS[sr1] + offset6;
         dr = instruction & 0x0E00;
         dr = dr >> 9;
-        memLoc = memLoc /2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        if((memLoc & 1) == 0)
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        }
+        else
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][1]; /* come back and double check this */
+        }
+
         /* need to account for sign extension */
         setcc();
       }
@@ -540,12 +558,12 @@ void process_instruction() {
     case 0x6000: /* LDW */
       if(instruction & 0x0020) { /* base offset negative */
         sr1 = instruction & 0x01C0;
-        sr1 >> 6;
+        sr1 = sr1 >> 6;
         offset6 = instruction & 0x003F;
         offset6 = offset6 | 0xFFFFFFC0; /*negative sign extend*/
-        offset6 << 1;
+        offset6 = offset6 << 1;
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
-        dr = 0x0E00;
+        dr = instruction & 0x0E00;
         dr = dr >> 9;
         memLoc = memLoc/2;
         NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
@@ -553,9 +571,9 @@ void process_instruction() {
       }
       else { /* base offset positve */
         sr1 = instruction & 0x01C0; /* BaseR */
-        sr1 >> 6;
-        offset6 = offset6 & 0x003F; /*boffset6*/
-        offset6 << 1;
+        sr1 = sr1 >> 6;
+        offset6 = instruction & 0x003F; /*boffset6*/
+        offset6 = offset6 << 1;
         memLoc = CURRENT_LATCHES.REGS[sr1] + offset6;
         dr = instruction & 0x0E00;
         dr = dr >> 9;
@@ -566,9 +584,9 @@ void process_instruction() {
       }
       break;
     
-    case 0xE000:
+    case 0xE000: /* LEA */
       dr = instruction & 0x0E00;
-      dr >> 9;
+      dr = dr >> 9;
       offset9 = instruction & 0x01FF;
       if (instruction & 0x0100) {     /* PCoffset9 is negative, must sign extend */
         offset9 = offset9 | 0xFFFFFE00;
@@ -576,7 +594,7 @@ void process_instruction() {
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.PC + 2 + offset9;
       }
       else { /* PCoffset9 is positive */
-        offset9 << 1;
+        offset9 = offset9 << 1;
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.PC + 2 + offset9;
       }
       break;
