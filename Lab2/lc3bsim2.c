@@ -689,9 +689,9 @@ void process_instruction() {
 }
 
 void setcc(){
-  if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;} /*setcc*/
-  else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
-  else{CURRENT_LATCHES.P = 1;}
+  if(CURRENT_LATCHES.REGS[dr] > 0){NEXT_LATCHES.N = 1;} /*setcc*/
+  else if(CURRENT_LATCHES.REGS[dr]==0){NEXT_LATCHES.Z = 1;}
+  else{NEXT_LATCHES.P = 1;}
 }
 
 
