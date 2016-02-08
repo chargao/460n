@@ -481,7 +481,7 @@ void process_instruction() {
               NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
             }
             else { /* PCoffset9 is positive */
-              offset9 << 1;
+              offset9 = offset9 << 1;
               NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
             }
           }
@@ -490,8 +490,9 @@ void process_instruction() {
     case 0x4000: /* JSR and JSRR */
       NEXT_LATCHES.REGS[7] = CURRENT_LATCHES.PC + 2;
       if(instruction & 0x0800) { /*JSR case */
+        offset11 = instruction & 0x7FF;
         if(instruction & 0x0400) {/* negative PCoffset11 */
-          offset11 = instruction & 0x7FF;
+
           offset11 = offset11 | 0xFFFFF000;
           offset11 = offset11 << 1;
           NEXT_LATCHES.PC =CURRENT_LATCHES.PC + 2 + offset11;
@@ -513,25 +514,42 @@ void process_instruction() {
     case 0x2000: /* LDB */
       if(instruction & 0x0020) { /* base offset negative */
         sr1 = instruction & 0x01C0;
-        sr1 >> 6;
+        sr1 = sr1 >> 6;
         offset6 = instruction & 0x003F;
         offset6 = offset6 | 0xFFFFFFC0;
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
-        dr = 0x0E00;
+        dr = instruction & 0x0E00;
         dr = dr >> 9;
-        memLoc = memLoc / 2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        if((memLoc & 1) == 0)
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        }
+        else
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][1]; /* come back and double check this */
+        }
         setcc();
       }
       else { /* base offset positve */
         sr1 = instruction & 0x01C0; /* BaseR */
-        sr1 >> 6;
-        offset6 = offset6 & 0x003F; /*boffset6*/
+        sr1 = sr1 >> 6;
+        offset6 = instruction & 0x003F; /*boffset6*/
         memLoc = CURRENT_LATCHES.REGS[sr1] + offset6;
         dr = instruction & 0x0E00;
         dr = dr >> 9;
-        memLoc = memLoc /2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        if((memLoc & 1) == 0)
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        }
+        else
+        {
+          memLoc = memLoc / 2;
+          NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][1]; /* come back and double check this */
+        }
+
         /* need to account for sign extension */
         setcc();
       }
@@ -540,35 +558,36 @@ void process_instruction() {
     case 0x6000: /* LDW */
       if(instruction & 0x0020) { /* base offset negative */
         sr1 = instruction & 0x01C0;
-        sr1 >> 6;
+        sr1 = sr1 >> 6;
         offset6 = instruction & 0x003F;
         offset6 = offset6 | 0xFFFFFFC0; /*negative sign extend*/
-        offset6 << 1;
+        offset6 = offset6 << 1;
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
-        dr = 0x0E00;
+        dr = instruction & 0x0E00;
         dr = dr >> 9;
-        memLoc = memLoc/2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0] & 0x00FF; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = ((MEMORY[memLoc][1] & 0x00FF) << 8) | NEXT_LATCHES.REGS[dr];
         setcc();
       }
       else { /* base offset positve */
         sr1 = instruction & 0x01C0; /* BaseR */
-        sr1 >> 6;
-        offset6 = offset6 & 0x003F; /*boffset6*/
-        offset6 << 1;
+        sr1 = sr1 >> 6;
+        offset6 = instruction & 0x003F; /*boffset6*/
+        offset6 = offset6 << 1;
         memLoc = CURRENT_LATCHES.REGS[sr1] + offset6;
         dr = instruction & 0x0E00;
         dr = dr >> 9;
         memLoc = memLoc/2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0] & 0x00FF; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = ((MEMORY[memLoc][1] & 0x00FF) << 8) | NEXT_LATCHES.REGS[dr];
         /* need to account for sign extension */
         setcc();
       }
       break;
     
-    case 0xE000:
+    case 0xE000: /* LEA */
       dr = instruction & 0x0E00;
-      dr >> 9;
+      dr = dr >> 9;
       offset9 = instruction & 0x01FF;
       if (instruction & 0x0100) {     /* PCoffset9 is negative, must sign extend */
         offset9 = offset9 | 0xFFFFFE00;
@@ -576,7 +595,7 @@ void process_instruction() {
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.PC + 2 + offset9;
       }
       else { /* PCoffset9 is positive */
-        offset9 << 1;
+        offset9 = offset9 << 1;
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.PC + 2 + offset9;
       }
       break;
@@ -585,7 +604,7 @@ void process_instruction() {
       sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
       sr1/=2; /*note memory is word addressable*/
       /*execute*/
-          NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
+      NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
       break;
     
     case 0xD000: /*LSHF, RSHFL, RSHFA*/
@@ -620,7 +639,8 @@ void process_instruction() {
       /*execute*/
       data = (CURRENT_LATCHES.REGS[sr1] & 0x00FF);
       loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
-      MEMORY[loc][0] = data & 0xFF; /*lower byte*/
+      if (loc%2 == 0) {MEMORY[loc][0] = data; }/*even address, lower byte*/
+      else { MEMORY[loc][1] = data; } /*odd address, upper byte*/
       break;
 
     case 0x7000: /*STw*/ /*We are making the assumption that the offset is properly aligned*/
@@ -638,9 +658,9 @@ void process_instruction() {
     case 0xF000: /*TRAP*/
       sr2 = (instruction & 0x00FF); /*note this is the trap vector*/
       /*execute*/
-          NEXT_LATCHES.REGS[7] = CURRENT_LATCHES.PC;
+      NEXT_LATCHES.REGS[7] = CURRENT_LATCHES.PC;
       loc = Low16bits(sr2) << 1;
-          NEXT_LATCHES.PC = (MEMORY[loc][1] << 8) + MEMORY[loc][0];
+      NEXT_LATCHES.PC = (MEMORY[loc][1] << 8) + MEMORY[loc][0];
       break;
 
     case 0x9000: /*XOR*/
@@ -670,13 +690,10 @@ void process_instruction() {
 }
 
 void setcc(){
-  if(CURRENT_LATCHES.REGS[dr] > 0){CURRENT_LATCHES.N = 1;} /*setcc*/
-  else if(CURRENT_LATCHES.REGS[dr]==0){CURRENT_LATCHES.Z = 1;}
-  else{CURRENT_LATCHES.P = 1;}
+  if(CURRENT_LATCHES.REGS[dr] > 0){NEXT_LATCHES.N = 1;} /*setcc*/
+  else if(CURRENT_LATCHES.REGS[dr]==0){NEXT_LATCHES.Z = 1;}
+  else{NEXT_LATCHES.P = 1;}
 }
-
-
-
 
 
 

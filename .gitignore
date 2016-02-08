@@ -2,3 +2,4 @@
 *.swo
 
 **/.idea/
+/lab2/output.obj
