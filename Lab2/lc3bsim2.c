@@ -448,7 +448,7 @@ void process_instruction() {
         dr = (instruction & 0x0E00); /*instruction[11:9]*/
         dr = dr >> 9;
         sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
-        sr1 = sr1 >> 9;
+        sr1 = sr1 >> 6;
         sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
         /* execute */
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & CURRENT_LATCHES.REGS[sr2];
@@ -458,7 +458,7 @@ void process_instruction() {
         dr = (instruction & 0x0E00); /*instruction[11:9]*/
         dr = dr >> 9;
         sr1 = (instruction & 0x01C0); /*instruction[8:6]*/
-        sr1 = sr1 >> 9;
+        sr1 = sr1 >> 6;
         sr2 = instruction & 0x001F; /* imm5[4:0] */
         /*execute*/
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & sr2; /* sr2 is actually imm5 */
