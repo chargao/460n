@@ -565,8 +565,8 @@ void process_instruction() {
         memLoc = offset6 + CURRENT_LATCHES.REGS[sr1];
         dr = instruction & 0x0E00;
         dr = dr >> 9;
-        memLoc = memLoc/2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0] & 0x00FF; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = ((MEMORY[memLoc][1] & 0x00FF) << 8) | NEXT_LATCHES.REGS[dr];
         setcc();
       }
       else { /* base offset positve */
@@ -578,7 +578,8 @@ void process_instruction() {
         dr = instruction & 0x0E00;
         dr = dr >> 9;
         memLoc = memLoc/2;
-        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0] & 0x00FF; /* come back and double check this */
+        NEXT_LATCHES.REGS[dr] = ((MEMORY[memLoc][1] & 0x00FF) << 8) | NEXT_LATCHES.REGS[dr];
         /* need to account for sign extension */
         setcc();
       }
