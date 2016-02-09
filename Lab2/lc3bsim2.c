@@ -644,9 +644,14 @@ void process_instruction() {
 
       /*execute*/
       data = (CURRENT_LATCHES.REGS[sr1] & 0x00FF);
-      loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
-      if (loc%2 == 0) {MEMORY[loc][0] = data; }/*even address, lower byte*/
-      else { MEMORY[loc][1] = data; } /*odd address, upper byte*/
+      if (loc%2 == 0) {
+        loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
+        MEMORY[loc][0] = data; /*even address, lower byte*/
+      }
+      else { 
+        loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
+        MEMORY[loc][1] = data; /*odd address, upper byte*/
+      } 
       break;
 
     case 0x7000: /*STw*/ /*We are making the assumption that the offset is properly aligned*/
@@ -657,6 +662,7 @@ void process_instruction() {
       /*execute*/
       data = Low16bits(CURRENT_LATCHES.REGS[sr1]);
       loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
+      /*Here, error correcting for attempting to write to ad address (in lab 4)*/
       MEMORY[loc][0] = data & 0x00FF; /*lower byte*/
       MEMORY[loc][1] = (data & 0xFF00) >> 8; /*upper byte*/
       break;
