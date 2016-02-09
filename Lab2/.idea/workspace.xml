@@ -34,8 +34,8 @@
       <file leaf-file-name="lc3bsim2.c" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lc3bsim2.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.9112735">
-              <caret line="708" column="23" selection-start-line="708" selection-start-column="23" selection-end-line="708" selection-end-column="23" />
+            <state vertical-scroll-proportion="0.2901879">
+              <caret line="694" column="0" selection-start-line="694" selection-start-column="0" selection-end-line="694" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -163,21 +163,36 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/lc3bsim2.c</url>
-          <line>522</line>
+          <line>528</line>
           <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/lc3bsim2.c</url>
-          <line>514</line>
+          <line>520</line>
           <option name="timeStamp" value="14" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/lc3bsim2.c</url>
-          <line>446</line>
+          <line>451</line>
           <option name="timeStamp" value="17" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/lc3bsim2.c</url>
+          <line>423</line>
+          <option name="timeStamp" value="18" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/lc3bsim2.c</url>
+          <line>443</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/lc3bsim2.c</url>
+          <line>440</line>
+          <option name="timeStamp" value="20" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="18" />
+      <option name="time" value="21" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="CMakeRunConfiguration">
@@ -261,8 +276,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lc3bsim2.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.9112735">
-          <caret line="708" column="23" selection-start-line="708" selection-start-column="23" selection-end-line="708" selection-end-column="23" />
+        <state vertical-scroll-proportion="0.2901879">
+          <caret line="694" column="0" selection-start-line="694" selection-start-column="0" selection-end-line="694" selection-end-column="0" />
           <folding />
         </state>
       </provider>

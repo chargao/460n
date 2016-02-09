@@ -438,6 +438,11 @@ void process_instruction() {
         sr1 = sr1 >> 6;
         sr2 = (instruction & 0x001F); /* imm5[4:0] */
         /*execute*/
+        if(instruction & 0x0010)
+        {
+          /*negative value */
+          sr2 = sr2 | 0xFFFFFFE0;
+        }
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] + sr2; /* sr2 = imm5 */
         setcc();                                                                                                          /* DONT FORGET ABOUT PC */
       }
@@ -461,6 +466,7 @@ void process_instruction() {
         sr1 = sr1 >> 6;
         sr2 = instruction & 0x001F; /* imm5[4:0] */
         /*execute*/
+
         NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & sr2; /* sr2 is actually imm5 */
         setcc();
       }
