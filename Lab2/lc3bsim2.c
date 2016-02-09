@@ -695,8 +695,15 @@ void process_instruction() {
   NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2;
 }
 
-void setcc(){
-  if(NEXT_LATCHES.REGS[dr] > 0)
+void setcc()
+{
+  if(NEXT_LATCHES.REGS[dr] & 0x8000)
+  {
+    NEXT_LATCHES.N = 1;
+    NEXT_LATCHES.P = 0;
+    NEXT_LATCHES.Z = 0;
+  }
+  else if(NEXT_LATCHES.REGS[dr] > 0)
   {
     NEXT_LATCHES.P = 1;
     NEXT_LATCHES.N = 0;
@@ -708,12 +715,7 @@ void setcc(){
     NEXT_LATCHES.Z = 1;
     NEXT_LATCHES.N = 0;
   }
-  else /* Negative value */
-  {
-    NEXT_LATCHES.N = 1;
-    NEXT_LATCHES.P = 0;
-    NEXT_LATCHES.Z = 0;
-  }
+
 }
 
 
