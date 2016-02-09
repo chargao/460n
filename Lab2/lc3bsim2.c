@@ -428,7 +428,7 @@ void process_instruction() {
         sr1 = sr1 >> 6;
         sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
         /*execute*/
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] + CURRENT_LATCHES.REGS[sr2] ;
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] + CURRENT_LATCHES.REGS[sr2])  ;
         setcc();
       }
       else { /*one sr*/
@@ -456,7 +456,7 @@ void process_instruction() {
         sr1 = sr1 >> 6;
         sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
         /* execute */
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & CURRENT_LATCHES.REGS[sr2] ;
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] & CURRENT_LATCHES.REGS[sr2])  ;
         setcc();
       }
       else { /* one sr1 */
@@ -467,7 +467,7 @@ void process_instruction() {
         sr2 = instruction & 0x001F; /* imm5[4:0] */
         /*execute*/
 
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & sr2 ; /* sr2 is actually imm5 */
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] & sr2)  ; /* sr2 is actually imm5 */
         setcc();
       }
           break;
@@ -530,11 +530,19 @@ void process_instruction() {
         {
           memLoc = memLoc / 2;
           NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+          if(NEXT_LATCHES.REGS[dr] & 0x80)
+          {
+            NEXT_LATCHES.REGS[dr] = NEXT_LATCHES.REGS[dr] | 0xFF00;
+          }
         }
         else
         {
           memLoc = memLoc / 2;
           NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][1]; /* come back and double check this */
+          if(NEXT_LATCHES.REGS[dr] & 0x80)
+          {
+            NEXT_LATCHES.REGS[dr] = NEXT_LATCHES.REGS[dr] | 0xFF00;
+          }
         }
         setcc();
       }
@@ -549,11 +557,19 @@ void process_instruction() {
         {
           memLoc = memLoc / 2;
           NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][0]; /* come back and double check this */
+          if(NEXT_LATCHES.REGS[dr] & 0x80)
+          {
+            NEXT_LATCHES.REGS[dr] = NEXT_LATCHES.REGS[dr] | 0xFF00;
+          }
         }
         else
         {
           memLoc = memLoc / 2;
           NEXT_LATCHES.REGS[dr] = MEMORY[memLoc][1]; /* come back and double check this */
+          if(NEXT_LATCHES.REGS[dr] & 0x80)
+          {
+            NEXT_LATCHES.REGS[dr] = NEXT_LATCHES.REGS[dr] | 0xFF00;
+          }
         }
 
         /* need to account for sign extension */
