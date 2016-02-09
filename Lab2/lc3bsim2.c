@@ -628,7 +628,7 @@ void process_instruction() {
           sign = (CURRENT_LATCHES.REGS[sr1] & 0x8000);
           for (shftnum = 0; shftnum < sr2; shftnum++) {
             NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] >> 1);
-            NEXT_LATCHES.REGS[dr] &= sign;
+            NEXT_LATCHES.REGS[dr] |= sign;
           }
           break;
       }
