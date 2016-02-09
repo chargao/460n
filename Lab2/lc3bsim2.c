@@ -428,7 +428,7 @@ void process_instruction() {
         sr1 = sr1 >> 6;
         sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
         /*execute*/
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] + CURRENT_LATCHES.REGS[sr2];
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] + CURRENT_LATCHES.REGS[sr2]) ;
         setcc();
       }
       else { /*one sr*/
@@ -456,7 +456,7 @@ void process_instruction() {
         sr1 = sr1 >> 6;
         sr2 = (instruction & 0x0007); /*instruction[2:0] | no shift necessary */
         /* execute */
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & CURRENT_LATCHES.REGS[sr2];
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] & CURRENT_LATCHES.REGS[sr2]) ;
         setcc();
       }
       else { /* one sr1 */
@@ -467,7 +467,7 @@ void process_instruction() {
         sr2 = instruction & 0x001F; /* imm5[4:0] */
         /*execute*/
 
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] & sr2; /* sr2 is actually imm5 */
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] & sr2) ; /* sr2 is actually imm5 */
         setcc();
       }
           break;
