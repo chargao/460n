@@ -638,13 +638,16 @@ void process_instruction() {
           NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] << sr2);
           break;
         case 0x0010: /*RSHFL*/
-          NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] >> sr2); /*this may or may not work as expected*/
+          for (shftnum = 0; shftnum < sr2; shftnum++) {
+            NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] >> 1);
+            NEXT_LATCHES.REGS[dr] &= 0x7FFF;/*zero extension*/
+          }
           break;
         case 0x0030: /*RSHFA*/
           sign = (CURRENT_LATCHES.REGS[sr1] & 0x8000);
           for (shftnum = 0; shftnum < sr2; shftnum++) {
             NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] >> 1);
-            NEXT_LATCHES.REGS[dr] |= sign;
+            NEXT_LATCHES.REGS[dr] |= sign;/*sign extension*/
           }
           break;
       }
