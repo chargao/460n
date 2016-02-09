@@ -608,9 +608,8 @@ void process_instruction() {
     
     case 0xC000: /*JMP and RET*/
       sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
-      sr1/=2; /*note memory is word addressable*/
       /*execute*/
-      NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1];
+      NEXT_LATCHES.PC = CURRENT_LATCHES.REGS[sr1]/2;
       break;
     
     case 0xD000: /*LSHF, RSHFL, RSHFA*/
