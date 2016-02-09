@@ -659,8 +659,9 @@ void process_instruction() {
 
       /*execute*/
       data = (CURRENT_LATCHES.REGS[sr1] & 0x00FF);
+      loc = (CURRENT_LATCHES.REGS[dr] + sr2); /*byte addressed memory*/
       if (loc%2 == 0) {
-        loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*note memory is word addressable*/
+        loc = (CURRENT_LATCHES.REGS[dr] + sr2)/2; /*sExt(offset) + BaseR*/ /*word addressed memory*/
         MEMORY[loc][0] = data; /*even address, lower byte*/
       }
       else { 
