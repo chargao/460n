@@ -443,7 +443,7 @@ void process_instruction() {
           /*negative value */
           sr2 = sr2 | 0xFFFFFFE0;
         }
-        NEXT_LATCHES.REGS[dr] = CURRENT_LATCHES.REGS[sr1] + sr2; /* sr2 = imm5 */
+        NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] + sr2); /* sr2 = imm5 */
         setcc();                                                                                                          /* DONT FORGET ABOUT PC */
       }
           break;
