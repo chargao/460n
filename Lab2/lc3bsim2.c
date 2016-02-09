@@ -684,11 +684,11 @@ void process_instruction() {
       break;
 
     case 0xF000: /*TRAP*/
-      sr2 = (instruction & 0x00FF); /*note this is the trap vector*/
+      sr2 = (instruction & 0x00FF); /*note this is the 0-extended trap vector*/
       /*execute*/
-      NEXT_LATCHES.REGS[7] = CURRENT_LATCHES.PC;
+      NEXT_LATCHES.REGS[7] = CURRENT_LATCHES.PC+2;
       loc = Low16bits(sr2) << 1;
-      NEXT_LATCHES.PC = (MEMORY[loc][1] << 8) + MEMORY[loc][0];
+      NEXT_LATCHES.PC = (MEMORY[loc/2][1] << 8) + MEMORY[loc/2][0];
       break;
 
     case 0x9000: /*XOR*/
