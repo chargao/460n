@@ -484,11 +484,11 @@ void process_instruction() {
             if (instruction & 0x0100) {     /* PCoffset9 is negative, must sign extend */
               offset9 = offset9 | 0xFFFFFE00;
               offset9 = offset9 << 1; /* since neg, 0x0200 must == 1 */
-              NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
+              CURRENT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
             }
             else { /* PCoffset9 is positive */
               offset9 = offset9 << 1;
-              NEXT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
+              CURRENT_LATCHES.PC = CURRENT_LATCHES.PC + 2 + offset9;
             }
           }
           break;
