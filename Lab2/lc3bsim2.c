@@ -690,9 +690,24 @@ void process_instruction() {
 }
 
 void setcc(){
-  if(CURRENT_LATCHES.REGS[dr] > 0){NEXT_LATCHES.N = 1;} /*setcc*/
-  else if(CURRENT_LATCHES.REGS[dr]==0){NEXT_LATCHES.Z = 1;}
-  else{NEXT_LATCHES.P = 1;}
+  if(NEXT_LATCHES.REGS[dr] > 0)
+  {
+    NEXT_LATCHES.P = 1;
+    NEXT_LATCHES.N = 0;
+    NEXT_LATCHES.Z = 0;
+  }
+  else if(NEXT_LATCHES.REGS[dr] == 0)
+  {
+    NEXT_LATCHES.P = 0;
+    NEXT_LATCHES.Z = 1;
+    NEXT_LATCHES.N = 0;
+  }
+  else /* Negative value */
+  {
+    NEXT_LATCHES.N = 1;
+    NEXT_LATCHES.P = 0;
+    NEXT_LATCHES.Z = 0;
+  }
 }
 
 
