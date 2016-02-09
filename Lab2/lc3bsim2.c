@@ -710,7 +710,7 @@ void process_instruction() {
         sr1 = (instruction & 0x01C0) >> 6; /*instruction[8:6]*/
         sr2 = (instruction & 0x001F);    /*imm5*/
         /*execute*/
-        if(instruction & 0x0010) { sr2 = sr2 | 0xFFFFFFD0; }/* negative sign extend*/
+        if(instruction & 0x0010) { sr2 = sr2 | 0xFFFFFFE0; }/* negative sign extend*/
         NEXT_LATCHES.REGS[dr] = Low16bits(CURRENT_LATCHES.REGS[sr1] ^ sr2);
         setcc();
       }
